@@ -221,7 +221,12 @@ class Transport(threading.Thread, ClosingContextManager):
         "diffie-hellman-group14-sha256",
     )
     if KexCurve25519.is_available():
-        _preferred_kex = ("curve25519-sha256@libssh.org",) + _preferred_kex
+        # RFC 8731 name first, then the older libssh.org alias; both map to
+        # the same implementation.
+        _preferred_kex = (
+            "curve25519-sha256",
+            "curve25519-sha256@libssh.org",
+        ) + _preferred_kex
     if KexMLKEM768X25519.is_available():
         _preferred_kex = ("mlkem768x25519-sha256",) + _preferred_kex
     _preferred_compression = ("none",)
@@ -332,6 +337,7 @@ class Transport(threading.Thread, ClosingContextManager):
         "ecdh-sha2-nistp521": KexNistp521,
     }
     if KexCurve25519.is_available():
+        _kex_info["curve25519-sha256"] = KexCurve25519
         _kex_info["curve25519-sha256@libssh.org"] = KexCurve25519
     if KexMLKEM768X25519.is_available():
         _kex_info["mlkem768x25519-sha256"] = KexMLKEM768X25519
